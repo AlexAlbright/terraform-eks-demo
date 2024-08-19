@@ -1,6 +1,7 @@
 locals {
-  inputs_from_tfvars = jsondecode(read_tfvars_file("terraform.tfvars"))
-  account_id = "${get_aws_account_id()}"
+  region      = "us-east-1"
+  environment = "test"
+  account_id  = "${get_aws_account_id()}"
 }
 
 remote_state {
@@ -11,10 +12,10 @@ remote_state {
   }
   config = {
     bucket         = "terraform-state-bucket-${local.account_id}"
-    key            = "${local.inputs_from_tfvars.environment}/terraform.tfstate"
-    region         = local.inputs_from_tfvars.region
+    key            = "${local.environment}/terraform.tfstate"
+    region         = local.region
     encrypt        = true
-    dynamodb_table = "${local.inputs_from_tfvars.environment}-${local.account_id}-terraform-state-lock"
+    dynamodb_table = "${local.environment}-${local.account_id}-terraform-state-lock"
   }
 }
 
@@ -31,10 +32,10 @@ terraform {
   }
 }
 provider "aws" {
-  region = "${local.inputs_from_tfvars.region}"
+  region = "${local.region}"
   default_tags {
     tags = {
-      Environment = "${local.inputs_from_tfvars.environment}"
+      Environment = "${local.environment}"
     }
   }
 }
