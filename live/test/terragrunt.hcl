@@ -12,7 +12,7 @@ remote_state {
   }
   config = {
     bucket         = "terraform-state-bucket-${local.account_id}"
-    key            = "${local.environment}/terraform.tfstate"
+    key            = "${local.environment}/${path_relative_to_include()}/terraform.tfstate"
     region         = local.region
     encrypt        = true
     dynamodb_table = "${local.environment}-${local.account_id}-terraform-state-lock"
@@ -36,6 +36,7 @@ provider "aws" {
   default_tags {
     tags = {
       Environment = "${local.environment}"
+      Stack = var.stack
     }
   }
 }
