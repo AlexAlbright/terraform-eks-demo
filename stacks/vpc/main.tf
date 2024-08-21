@@ -10,7 +10,7 @@ module "vpc" {
   version = "5.13.0"
 
   name = "k8s-vpc"
-  
+
   cidr                   = var.cidr_block
   azs                    = slice(data.aws_availability_zones.available.names, 0, 3)
   private_subnets        = var.private_subnets

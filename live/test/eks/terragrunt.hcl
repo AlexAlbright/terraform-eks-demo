@@ -6,12 +6,16 @@ terraform {
   source = "../../../stacks/eks"
 }
 
+dependency "vpc" {
+  config_path = "../vpc"
+}
+
 inputs = {
-  name = "test"
+  name  = "test"
   stack = "eks"
 
   eks_public_access = true
-  
+
   node_groups = {
     default = {
       instance_size = "t3.micro"
@@ -23,5 +27,10 @@ inputs = {
   eks_users = [
     "admin-dev"
   ]
+  
+  private_subnets = dependency.vpc.outputs.private_subnets
+  public_subnets  = dependency.vpc.outputs.public_subnets
+
+  vpc_id = dependency.vpc.outputs.vpc_id
 
 }

@@ -30,73 +30,73 @@ resource "aws_s3_bucket_versioning" "terraform-state-bucket-versioning" {
   bucket = aws_s3_bucket.terraform-state.id
   versioning_configuration {
     status = "Enabled"
-  } 
+  }
 }
 
 resource "aws_s3_bucket_policy" "terraform-state-bucket-policy" {
-  bucket = aws_s3_bucket.terraform-state.id 
+  bucket = aws_s3_bucket.terraform-state.id
   policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "EnforcedTLS",
-            "Effect": "Deny",
-            "Principal": "*",
-            "Action": "s3:*",
-            "Resource": [
-                "${aws_s3_bucket.terraform-state.arn}",
-                "${aws_s3_bucket.terraform-state.arn}/*"
-            ],
-            "Condition": {
-                "Bool": {
-                    "aws:SecureTransport": "false"
-                }
-            }
-        },
-        {
-            "Sid": "RootAccess",
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": "arn:aws:iam::160398320853:root"
-            },
-            "Action": "s3:*",
-            "Resource": [
-                "${aws_s3_bucket.terraform-state.arn}",
-                "${aws_s3_bucket.terraform-state.arn}/*"
-            ]
-        },
-        {
-            "Sid": "EnforceTls",
-            "Effect": "Deny",
-            "Principal": "*",
-            "Action": "s3:*",
-            "Resource": [
-                "${aws_s3_bucket.terraform-state.arn}",
-                "${aws_s3_bucket.terraform-state.arn}/*"
-            ],
-            "Condition": {
-                "Bool": {
-                    "aws:SecureTransport": "false"
-                }
-            }
-        },
-        {
-            "Sid": "EnforceProtoVer",
-            "Effect": "Deny",
-            "Principal": "*",
-            "Action": "s3:*",
-            "Resource": [
-                "${aws_s3_bucket.terraform-state.arn}",
-                "${aws_s3_bucket.terraform-state.arn}/*"
-            ],
-            "Condition": {
-                "NumericLessThan": {
-                    "s3:TlsVersion": "1.2"
-                }
-            }
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Sid" : "EnforcedTLS",
+        "Effect" : "Deny",
+        "Principal" : "*",
+        "Action" : "s3:*",
+        "Resource" : [
+          "${aws_s3_bucket.terraform-state.arn}",
+          "${aws_s3_bucket.terraform-state.arn}/*"
+        ],
+        "Condition" : {
+          "Bool" : {
+            "aws:SecureTransport" : "false"
+          }
         }
+      },
+      {
+        "Sid" : "RootAccess",
+        "Effect" : "Allow",
+        "Principal" : {
+          "AWS" : "arn:aws:iam::160398320853:root"
+        },
+        "Action" : "s3:*",
+        "Resource" : [
+          "${aws_s3_bucket.terraform-state.arn}",
+          "${aws_s3_bucket.terraform-state.arn}/*"
+        ]
+      },
+      {
+        "Sid" : "EnforceTls",
+        "Effect" : "Deny",
+        "Principal" : "*",
+        "Action" : "s3:*",
+        "Resource" : [
+          "${aws_s3_bucket.terraform-state.arn}",
+          "${aws_s3_bucket.terraform-state.arn}/*"
+        ],
+        "Condition" : {
+          "Bool" : {
+            "aws:SecureTransport" : "false"
+          }
+        }
+      },
+      {
+        "Sid" : "EnforceProtoVer",
+        "Effect" : "Deny",
+        "Principal" : "*",
+        "Action" : "s3:*",
+        "Resource" : [
+          "${aws_s3_bucket.terraform-state.arn}",
+          "${aws_s3_bucket.terraform-state.arn}/*"
+        ],
+        "Condition" : {
+          "NumericLessThan" : {
+            "s3:TlsVersion" : "1.2"
+          }
+        }
+      }
     ]
-})
+  })
 }
 
 resource "aws_dynamodb_table" "terraform-state-lock" {
