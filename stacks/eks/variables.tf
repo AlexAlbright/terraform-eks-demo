@@ -20,11 +20,21 @@ variable "vpc_id" {
 }
 
 variable "eks_users" {
-  type = list(string)
+  type    = list(string)
   default = []
 }
 
 variable "eks_roles" {
-  type = list(string)
+  type    = list(string)
   default = []
+}
+
+variable "node_groups" {
+  type = map(object({
+    instance_types = string
+    desired_size   = number
+    min_size       = optional(number, 1)
+    max_size       = number
+    taint          = optional(bool, false)
+  }))
 }

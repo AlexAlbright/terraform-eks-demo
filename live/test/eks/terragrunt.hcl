@@ -18,7 +18,7 @@ inputs = {
 
   node_groups = {
     default = {
-      instance_size = "t3.micro"
+      instance_types = "t3.micro"
       desired_size  = 3
       max_size      = 3
     }
@@ -27,7 +27,7 @@ inputs = {
   eks_users = [
     "admin-dev"
   ]
-  
+
   private_subnets = dependency.vpc.outputs.private_subnets
   public_subnets  = dependency.vpc.outputs.public_subnets
 
