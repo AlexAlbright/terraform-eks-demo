@@ -1,7 +1,8 @@
 data "aws_caller_identity" "current" {}
 
 locals {
-  account_id = data.aws_caller_identity.current.account_id
+  cluster_name = "test_cluster"
+  account_id   = data.aws_caller_identity.current.account_id
 
   node_groups = {
     for name, props in var.node_groups : name => {
@@ -35,10 +36,11 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "20.5.0"
 
-  cluster_name                    = "test_cluster"
-  cluster_version                 = "1.30"
-  cluster_endpoint_private_access = true
-  cluster_endpoint_public_access  = var.eks_public_access
+  cluster_name                         = local.cluster_name
+  cluster_version                      = "1.30"
+  cluster_endpoint_private_access      = true
+  cluster_endpoint_public_access_cidrs = ["71.211.251.37/32"]
+  cluster_endpoint_public_access       = var.eks_public_access
 
   subnet_ids = var.private_subnets
   vpc_id     = var.vpc_id

@@ -19,8 +19,8 @@ inputs = {
   node_groups = {
     default = {
       instance_types = "t3.micro"
-      desired_size  = 3
-      max_size      = 3
+      desired_size   = 3
+      max_size       = 3
     }
   }
 
