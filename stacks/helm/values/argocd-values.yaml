@@ -1,0 +1,7 @@
+global:
+  image:
+    tag: v2.7.1
+server:
+  extraArgs: ["--insecure"]
+controller:
+  enableStatefulSet: false

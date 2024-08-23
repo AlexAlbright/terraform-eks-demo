@@ -8,16 +8,16 @@ provider "kubernetes" {
   }
 }
 
-resource "kubernetes_namespace" "argocd-namespace" {
-  metadata {
-    name = "argocd"
-  }
-}
-
-resource "kubernetes_manifest" "argocd-manifest" {
-  depends_on = [kubernetes_namespace.argocd-namespace]
-  manifest   = yamldecode(file("manifests/argocd.yaml"))
-}
+#resource "kubernetes_namespace" "argocd-namespace" {
+#  metadata {
+#    name = "argocd"
+#  }
+#}
+#
+#resource "kubernetes_manifest" "argocd-manifest" {
+#  depends_on = [kubernetes_namespace.argocd-namespace]
+#  manifest   = yamldecode(file("manifests/argocd.yaml"))
+#}
 
 # Part of the steps to allow more pods per node
 #resource "kubernetes_manifest" "aws_node_env_patch" {
