@@ -7,18 +7,10 @@ terraform {
   }
 }
 
-#provider "kubernetes" {
-#  host                   = var.cluster_endpoint
-#  cluster_ca_certificate = base64decode(var.cluster_certificate_authority_data)
-#  exec {
-#    api_version = "client.authentication.k8s.io/v1beta1"
-#    args        = ["eks", "get-token", "--cluster-name", var.cluster_name]
-#    command     = "aws"
-#  }
-#}
-
+# This provider inherits from your current kubeconfig,
+# ensure that it's currently pointed at the active cluster before applying
+# This is handled if you are using the automated Makefile deployment process
 provider "argocd" {
-  #use_local_config = true
   username     = "admin"
   password     = "00SdLDtbY3RofsrX"
   port_forward = true
@@ -92,5 +84,40 @@ resource "argocd_application" "traefik" {
       }
     }
   }
+}
 
+resource "argocd_application" "cert-manager" {
+  metadata {
+    name = "cert-manager"
+  }
+
+  spec {
+    project = "default"
+
+    source {
+      repo_url        = "https://charts.jetstack.io"
+      target_revision = "v1.15.3"
+      chart           = "cert-manager"
+      helm {
+        parameter {
+          name  = "crds.enabled"
+          value = "true"
+        }
+      }
+    }
+
+    destination {
+      server    = "https://kubernetes.default.svc"
+      namespace = "default"
+    }
+
+    sync_policy {
+      automated {
+        prune       = true
+        self_heal   = true
+        allow_empty = true
+
+      }
+    }
+  }
 }
