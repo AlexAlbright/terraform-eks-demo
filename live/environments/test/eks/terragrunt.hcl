@@ -3,7 +3,7 @@ include "root" {
 }
 
 terraform {
-  source = "../../../stacks/eks"
+  source = "../../../../components/eks"
 }
 
 dependency "vpc" {

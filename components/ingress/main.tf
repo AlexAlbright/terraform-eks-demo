@@ -3,6 +3,10 @@ terraform {
     argocd = {
       source  = "oboukili/argocd"
       version = "6.1.1"
+    }    
+    kubernetes = {
+      source = "hashicorp/kubernetes"
+      version = "2.32.0"
     }
   }
 }
@@ -15,18 +19,16 @@ provider "argocd" {
   password     = "00SdLDtbY3RofsrX"
   port_forward = true
   plain_text   = true
-  #port_forward_with_namespace = "argocd"
-  #server_addr = ""
-  #insecure = true
-  #kubernetes {
-  #  host                   = var.cluster_endpoint
-  #  cluster_ca_certificate = base64decode(var.cluster_certificate_authority_data)
-  #  exec {
-  #    api_version = "client.authentication.k8s.io/v1beta1"
-  #    args        = ["eks", "get-token", "--cluster-name", var.cluster_name]
-  #    command     = "aws"
-  #  }
-  #}
+}
+
+provider "kubernetes" {
+  host                   = var.cluster_endpoint
+  cluster_ca_certificate = base64decode(var.cluster_certificate_authority_data)
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    args        = ["eks", "get-token", "--cluster-name", var.cluster_name]
+    command     = "aws"
+  }
 }
 
 resource "argocd_application" "guestbook" {
@@ -121,3 +123,9 @@ resource "argocd_application" "cert-manager" {
     }
   }
 }
+
+resource "kubernetes_manifest" "argocd_ingress" {
+  for_each = fileset("${path.module}/manifests", "*.yaml")
+
+  manifest = yamldecode(file("manifests/${each.value}"))
+} 

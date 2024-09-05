@@ -3,6 +3,6 @@ inputs = {
 }
 
 terraform {
-  source = "../../../stacks/bootstrap"
+  source = "../../../../components/bootstrap"
 }
 
