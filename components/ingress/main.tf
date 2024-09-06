@@ -16,7 +16,7 @@ terraform {
 # This is handled if you are using the automated Makefile deployment process
 provider "argocd" {
   username     = "admin"
-  password     = "00SdLDtbY3RofsrX"
+  password     = var.argocd_password
   port_forward = true
   plain_text   = true
 }
@@ -126,6 +126,19 @@ resource "argocd_application" "cert-manager" {
 
 resource "kubernetes_manifest" "argocd_ingress" {
   for_each = fileset("${path.module}/manifests", "*.yaml")
-
   manifest = yamldecode(file("manifests/${each.value}"))
+}
+
+data "kubernetes_service" "traefik" {
+  metadata {
+    name = "traefik"
+  }
+}
+
+resource "aws_route53_record" "argocd_dns" {
+  zone_id = "Z03856972BWR1NS86YG6P" # hardcode, figure this out later
+  name    = "argocd"
+  type    = "CNAME"
+  ttl     = "300"
+  records = [data.kubernetes_service.traefik.status.0.load_balancer.0.ingress.0.hostname]
 }
