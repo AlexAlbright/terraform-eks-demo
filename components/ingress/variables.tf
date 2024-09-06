@@ -13,3 +13,8 @@ variable "cluster_certificate_authority_data" {
 variable "cluster_endpoint" {
   type = string
 }
+
+variable "argocd_password" {
+  type = string
+}
+

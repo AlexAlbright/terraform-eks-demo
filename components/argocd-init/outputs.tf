@@ -1,4 +1,4 @@
 output "argocd_admin_setup_password" {
-  value     = data.kubernetes_secret.argocd_admin_setup_password.data
+  value     = data.kubernetes_secret.argocd_admin_setup_password.data.password
   sensitive = true
 }
