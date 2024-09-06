@@ -39,3 +39,10 @@ resource "helm_release" "argocd" {
     file("./values/argocd-values.yaml")
   ]
 }
+
+data "kubernetes_secret" "argocd_admin_setup_password" {
+  metadata {
+    name      = "argocd-initial-admin-secret"
+    namespace = "argocd"
+  }
+}

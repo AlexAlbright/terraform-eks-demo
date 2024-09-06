@@ -3,9 +3,9 @@ terraform {
     argocd = {
       source  = "oboukili/argocd"
       version = "6.1.1"
-    }    
+    }
     kubernetes = {
-      source = "hashicorp/kubernetes"
+      source  = "hashicorp/kubernetes"
       version = "2.32.0"
     }
   }
@@ -128,4 +128,4 @@ resource "kubernetes_manifest" "argocd_ingress" {
   for_each = fileset("${path.module}/manifests", "*.yaml")
 
   manifest = yamldecode(file("manifests/${each.value}"))
-} 
+}
