@@ -47,4 +47,3 @@ data "kubernetes_secret" "argocd_admin_setup_password" {
     namespace = "argocd"
   }
 }
-}
