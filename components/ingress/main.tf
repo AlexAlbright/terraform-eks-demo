@@ -4,10 +4,6 @@ terraform {
       source  = "oboukili/argocd"
       version = "6.1.1"
     }
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = "2.32.0"
-    }
   }
 }
 
@@ -19,16 +15,6 @@ provider "argocd" {
   password     = var.argocd_password
   port_forward = true
   plain_text   = true
-}
-
-provider "kubernetes" {
-  host                   = var.cluster_endpoint
-  cluster_ca_certificate = base64decode(var.cluster_certificate_authority_data)
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    args        = ["eks", "get-token", "--cluster-name", var.cluster_name]
-    command     = "aws"
-  }
 }
 
 resource "argocd_application" "guestbook" {
@@ -124,21 +110,71 @@ resource "argocd_application" "cert-manager" {
   }
 }
 
-resource "kubernetes_manifest" "argocd_ingress" {
-  for_each = fileset("${path.module}/manifests", "*.yaml")
-  manifest = yamldecode(file("manifests/${each.value}"))
+module "certificates" {
+  source = "./modules/certificates"
+
+  name = "argocd"
+  email = "alexalbright@me.com"
+  environment = var.environment
+  tld = "alexalbright.com"
+}
+
+resource "kubernetes_manifest" "argocd_ingress_route" {
+  manifest = {
+    "apiVersion" = "traefik.io/v1alpha1"
+    "kind" = "IngressRoute"
+    "metadata" = {
+      "name" = "argocd-ingress"
+      "namespace" = "argocd" 
+    }
+    "spec" = {
+      "entryPoints" = [
+        "websecure",
+      ]
+      "routes" = [
+        {
+          "kind" = "Rule"
+          "match" = "Host(`argocd.alexalbright.com`)"
+          "priority" = 10
+          "services" = [
+            {
+              "name" = "argocd-server"
+              "port" = 80
+            },
+          ]
+        },
+        {
+          "kind" = "Rule"
+          "match" = "Host(`argocd.alexalbright.com`) && Header(`Content-Type`, `application/grpc`)"
+          "priority" = 11
+          "services" = [
+            {
+              "name" = "argocd-server"
+              "port" = 80
+              "scheme" = "h2c"
+            },
+          ]
+        },
+      ]
+      "tls" = {
+        "secretName" = "argocd-cert-${var.environment}" 
+      }
+    }
+  }
 }
 
 data "kubernetes_service" "traefik" {
+  depends_on = [argocd_application.traefik]
   metadata {
     name = "traefik"
   }
 }
 
 resource "aws_route53_record" "argocd_dns" {
-  zone_id = "Z03856972BWR1NS86YG6P" # hardcode, figure this out later
-  name    = "argocd"
-  type    = "CNAME"
-  ttl     = "300"
-  records = [data.kubernetes_service.traefik.status.0.load_balancer.0.ingress.0.hostname]
+  depends_on = [argocd_application.traefik]
+  zone_id    = "Z03856972BWR1NS86YG6P" # hardcode, figure this out later
+  name       = "argocd"
+  type       = "CNAME"
+  ttl        = "300"
+  records    = [data.kubernetes_service.traefik.status.0.load_balancer.0.ingress.0.hostname]
 }
