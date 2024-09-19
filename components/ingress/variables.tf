@@ -18,3 +18,6 @@ variable "argocd_password" {
   type = string
 }
 
+variable "tld" {
+  type = string
+}

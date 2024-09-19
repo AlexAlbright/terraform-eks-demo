@@ -125,18 +125,25 @@ resource "argocd_application" "cert-manager" {
 }
 
 resource "kubernetes_manifest" "argocd_ingress" {
+  depends_on = [argocd_application.traefik, argocd_application.cert-manager]
   for_each = fileset("${path.module}/manifests", "*.yaml")
   manifest = yamldecode(file("manifests/${each.value}"))
 }
 
 data "kubernetes_service" "traefik" {
+  depends_on = [argocd_application.traefik]
   metadata {
     name = "traefik"
   }
 }
 
+data "aws_route53_zone" "hosted_zone" {
+  name         = "${var.tld}."
+}
+
 resource "aws_route53_record" "argocd_dns" {
-  zone_id = "Z03856972BWR1NS86YG6P" # hardcode, figure this out later
+  depends_on = [argocd_application.traefik]
+  zone_id = data.aws_route53_zone.hosted_zone.zone_id
   name    = "argocd"
   type    = "CNAME"
   ttl     = "300"
