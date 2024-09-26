@@ -11,6 +11,6 @@ dependency "eks" {
 }
 
 inputs = {
-  tld = "alexalbright.com" # change to the tld of the hosted zone you will be using for this demo
-
+  tld        = "alexalbright.com" # change to the tld of the hosted zone you will be using for this demo
+  subdomains = ["argocd"]         # list of domains
 }

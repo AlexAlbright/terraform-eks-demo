@@ -31,34 +31,34 @@ provider "kubernetes" {
   }
 }
 
-resource "argocd_application" "guestbook" {
-  metadata {
-    name = "guestbook"
-  }
-
-  spec {
-    project = "default"
-
-    source {
-      repo_url        = "https://github.com/argoproj/argocd-example-apps.git"
-      target_revision = "HEAD"
-      path            = "guestbook"
-    }
-
-    destination {
-      server    = "https://kubernetes.default.svc"
-      namespace = "default"
-    }
-
-    sync_policy {
-      automated {
-        prune       = true
-        self_heal   = true
-        allow_empty = true
-      }
-    }
-  }
-}
+#resource "argocd_application" "guestbook" {
+#  metadata {
+#    name = "guestbook"
+#  }
+#
+#  spec {
+#    project = "default"
+#
+#    source {
+#      repo_url        = "https://github.com/argoproj/argocd-example-apps.git"
+#      target_revision = "HEAD"
+#      path            = "guestbook"
+#    }
+#
+#    destination {
+#      server    = "https://kubernetes.default.svc"
+#      namespace = "default"
+#    }
+#
+#    sync_policy {
+#      automated {
+#        prune       = true
+#        self_heal   = true
+#        allow_empty = true
+#      }
+#    }
+#  }
+#}
 
 resource "argocd_application" "traefik" {
   metadata {
@@ -124,12 +124,7 @@ resource "argocd_application" "cert-manager" {
   }
 }
 
-resource "kubernetes_manifest" "argocd_ingress" {
-  depends_on = [argocd_application.traefik, argocd_application.cert-manager]
-  for_each = fileset("${path.module}/manifests", "*.yaml")
-  manifest = yamldecode(file("manifests/${each.value}"))
-}
-
+# Used to fetch the lb_url to be output
 data "kubernetes_service" "traefik" {
   depends_on = [argocd_application.traefik]
   metadata {
@@ -137,15 +132,3 @@ data "kubernetes_service" "traefik" {
   }
 }
 
-data "aws_route53_zone" "hosted_zone" {
-  name         = "${var.tld}."
-}
-
-resource "aws_route53_record" "argocd_dns" {
-  depends_on = [argocd_application.traefik]
-  zone_id = data.aws_route53_zone.hosted_zone.zone_id
-  name    = "argocd"
-  type    = "CNAME"
-  ttl     = "300"
-  records = [data.kubernetes_service.traefik.status.0.load_balancer.0.ingress.0.hostname]
-}

@@ -2,7 +2,11 @@ variable "stack" {
   type = string
 }
 
-variable "cluster_name" {
+variable "tld" {
+  type = string
+}
+
+variable "lb_url" {
   type = string
 }
 
@@ -14,6 +18,6 @@ variable "cluster_endpoint" {
   type = string
 }
 
-variable "argocd_password" {
+variable "cluster_name" {
   type = string
 }
