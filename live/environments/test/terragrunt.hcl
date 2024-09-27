@@ -1,7 +1,9 @@
 locals {
   region      = "us-east-1"
   environment = "test"
-  account_id  = "${get_aws_account_id()}"
+  tld         = "alexalbright.com"    # Top Level Domain that apps will use
+  email       = "alexalbright@me.com" # For issuing certificates
+  account_id = "${get_aws_account_id()}"
 }
 
 remote_state {

@@ -80,3 +80,10 @@ resource "argocd_application" "cert-manager" {
     }
   }
 }
+
+data "kubernetes_service" "traefik" {
+  depends_on = [argocd_application.traefik]
+  metadata {
+    name = "traefik"
+  }
+}

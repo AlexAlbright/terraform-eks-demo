@@ -22,8 +22,6 @@ dependency "argocd-init" {
 
 inputs = {
   stack                              = "ingress"
-  email = "alexalbright@me.com"
-  tld = "alexalbright.com"
   region                             = include.root.locals.region
   environment                        = include.root.locals.environment
   cluster_name                       = dependency.eks.outputs.cluster_name

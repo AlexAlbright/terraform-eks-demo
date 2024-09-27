@@ -2,6 +2,14 @@ variable "stack" {
   type = string
 }
 
+variable "environment" {
+  type = string
+}
+
+variable "region" {
+  type = string
+}
+
 variable "tld" {
   type = string
 }
