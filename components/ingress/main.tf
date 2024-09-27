@@ -17,35 +17,6 @@ provider "argocd" {
   plain_text   = true
 }
 
-resource "argocd_application" "guestbook" {
-  metadata {
-    name = "guestbook"
-  }
-
-  spec {
-    project = "default"
-
-    source {
-      repo_url        = "https://github.com/argoproj/argocd-example-apps.git"
-      target_revision = "HEAD"
-      path            = "guestbook"
-    }
-
-    destination {
-      server    = "https://kubernetes.default.svc"
-      namespace = "default"
-    }
-
-    sync_policy {
-      automated {
-        prune       = true
-        self_heal   = true
-        allow_empty = true
-      }
-    }
-  }
-}
-
 resource "argocd_application" "traefik" {
   metadata {
     name = "traefik"
@@ -108,73 +79,4 @@ resource "argocd_application" "cert-manager" {
       }
     }
   }
-}
-
-module "certificates" {
-  source = "./modules/certificates"
-
-  name = "argocd"
-  email = "alexalbright@me.com"
-  environment = var.environment
-  tld = "alexalbright.com"
-}
-
-resource "kubernetes_manifest" "argocd_ingress_route" {
-  manifest = {
-    "apiVersion" = "traefik.io/v1alpha1"
-    "kind" = "IngressRoute"
-    "metadata" = {
-      "name" = "argocd-ingress"
-      "namespace" = "argocd" 
-    }
-    "spec" = {
-      "entryPoints" = [
-        "websecure",
-      ]
-      "routes" = [
-        {
-          "kind" = "Rule"
-          "match" = "Host(`argocd.alexalbright.com`)"
-          "priority" = 10
-          "services" = [
-            {
-              "name" = "argocd-server"
-              "port" = 80
-            },
-          ]
-        },
-        {
-          "kind" = "Rule"
-          "match" = "Host(`argocd.alexalbright.com`) && Header(`Content-Type`, `application/grpc`)"
-          "priority" = 11
-          "services" = [
-            {
-              "name" = "argocd-server"
-              "port" = 80
-              "scheme" = "h2c"
-            },
-          ]
-        },
-      ]
-      "tls" = {
-        "secretName" = "argocd-cert-${var.environment}" 
-      }
-    }
-  }
-}
-
-data "kubernetes_service" "traefik" {
-  depends_on = [argocd_application.traefik]
-  metadata {
-    name = "traefik"
-  }
-}
-
-resource "aws_route53_record" "argocd_dns" {
-  depends_on = [argocd_application.traefik]
-  zone_id    = "Z03856972BWR1NS86YG6P" # hardcode, figure this out later
-  name       = "argocd"
-  type       = "CNAME"
-  ttl        = "300"
-  records    = [data.kubernetes_service.traefik.status.0.load_balancer.0.ingress.0.hostname]
 }
