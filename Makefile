@@ -29,8 +29,8 @@ ingress:
 	terragrunt init --terragrunt-working-dir live/environments/$(TARGET_ENV)/ingress
 	terragrunt apply -auto-approve -terragrunt-working-dir live/environments/$(TARGET_ENV)/ingress
 
-.PHONY: cluster
-cluster: init vpc eks argocd-init ingress
+.PHONY: all
+all: init vpc eks argocd-init ingress
 
 BUCKET=$(shell aws s3api list-buckets --query "Buckets[?starts_with(Name, 'terraform-state-bucket-')].Name" --output text)
 

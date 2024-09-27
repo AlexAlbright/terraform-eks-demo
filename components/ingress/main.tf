@@ -4,10 +4,6 @@ terraform {
       source  = "oboukili/argocd"
       version = "6.1.1"
     }
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = "2.32.0"
-    }
   }
 }
 
@@ -20,45 +16,6 @@ provider "argocd" {
   port_forward = true
   plain_text   = true
 }
-
-provider "kubernetes" {
-  host                   = var.cluster_endpoint
-  cluster_ca_certificate = base64decode(var.cluster_certificate_authority_data)
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    args        = ["eks", "get-token", "--cluster-name", var.cluster_name]
-    command     = "aws"
-  }
-}
-
-#resource "argocd_application" "guestbook" {
-#  metadata {
-#    name = "guestbook"
-#  }
-#
-#  spec {
-#    project = "default"
-#
-#    source {
-#      repo_url        = "https://github.com/argoproj/argocd-example-apps.git"
-#      target_revision = "HEAD"
-#      path            = "guestbook"
-#    }
-#
-#    destination {
-#      server    = "https://kubernetes.default.svc"
-#      namespace = "default"
-#    }
-#
-#    sync_policy {
-#      automated {
-#        prune       = true
-#        self_heal   = true
-#        allow_empty = true
-#      }
-#    }
-#  }
-#}
 
 resource "argocd_application" "traefik" {
   metadata {
@@ -123,12 +80,3 @@ resource "argocd_application" "cert-manager" {
     }
   }
 }
-
-# Used to fetch the lb_url to be output
-data "kubernetes_service" "traefik" {
-  depends_on = [argocd_application.traefik]
-  metadata {
-    name = "traefik"
-  }
-}
-
