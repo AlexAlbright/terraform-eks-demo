@@ -14,6 +14,10 @@ variable "tld" {
   type = string
 }
 
+variable "email" {
+  type = string
+}
+
 variable "lb_url" {
   type = string
 }

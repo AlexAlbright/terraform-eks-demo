@@ -1,7 +1,6 @@
 # This module defines a few key components for each web app deployed to the cluster 
 # 1. Certificate issuer
 # 2. Certificate
-# 3. Ingress Route
 
 locals {
   cert_name   = "${var.name}-cert-${var.environment}"
@@ -61,46 +60,3 @@ resource "kubernetes_manifest" "certificate_issuer" {
   }
 }
 
-resource "kubernetes_manifest" "ingress_route" {
-  manifest = {
-    "apiVersion" = "traefik.io/v1alpha1"
-    "kind"       = "IngressRoute"
-    "metadata" = {
-      "name"      = "${var.name}-ingress"
-      "namespace" = var.name
-    }
-    "spec" = {
-      "entryPoints" = [
-        "websecure",
-      ]
-      "routes" = [
-        {
-          "kind"     = "Rule"
-          "match"    = "Host(`argocd.alexalbright.com`)"
-          "priority" = 10
-          "services" = [
-            {
-              "name" = "argocd-server"
-              "port" = 80
-            },
-          ]
-        },
-        {
-          "kind"     = "Rule"
-          "match"    = "Host(`argocd.alexalbright.com`) && Header(`Content-Type`, `application/grpc`)"
-          "priority" = 11
-          "services" = [
-            {
-              "name"   = "argocd-server"
-              "port"   = 80
-              "scheme" = "h2c"
-            },
-          ]
-        },
-      ]
-      "tls" = {
-        "secretName" = local.cert_name
-      }
-    }
-  }
-}

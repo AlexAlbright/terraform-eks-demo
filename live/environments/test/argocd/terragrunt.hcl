@@ -29,6 +29,7 @@ inputs = {
   tld                                = include.root.locals.tld
   environment                        = include.root.locals.environment
   region                             = include.root.locals.region
+  email                              = include.root.locals.email
   lb_url                             = dependency.ingress.outputs.lb_url
   cluster_name                       = dependency.eks.outputs.cluster_name
   cluster_certificate_authority_data = dependency.eks.outputs.cluster_certificate_authority_data
