@@ -4,7 +4,7 @@ This project is a demonstration of a EKS cluter that is deployed via terraform a
 
 ## Components
 
-Components, contains the various parts of this project organized by business logic and deploy order. These directories contain the actual terraform code, each component contains a main.tf, variables.tf, and some have an output.tf. These components are linked together via terragrunt to manage the deployments themselves to deal with inputs/outputs.
+The components directory contains the various parts of this project organized by business logic and deploy order. These directories contain the actual terraform code, each component contains a main.tf, variables.tf, and some have an output.tf. These components are linked together via terragrunt to manage the deployments themselves to deal with inputs/outputs.
 
 ## Live 
 The live directory is structured as such `live\environment\<environment-name>` in this demonstration that environment is `test`. In a real business deployment I would add the various environments (e.g. QA, Prod, Dev), within this directory. Within the `<environment-name>` directory there are directories for each component that define key parts of each component.
@@ -35,3 +35,6 @@ There were a few compromises made in this project since it's just a demo
     - ArgoCD reccomends only using this account for setup purposes, since that is what is happening here I found this compromise acceptable. In a real produciton workflow IAM would be handled at the cluster level and the ArgoCD provider would have it's own user and generated token for new IaC usage.
 - Dependencies aren't always avaliable right away 
     - During development of this project I found that sometimes due to the way terraform applies changes that the cluster didn't always have the required kubernetes objects ready when applying the ingress manifests. This is resolved by simply re-running the failed steps when they are ready.
+- Exposing the ArgoCD login directly to the internet
+    - yeah don't do this, again, it's a demo, in produciton put this behind a vpn
+    
