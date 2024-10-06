@@ -20,7 +20,7 @@ Prerequesites
 - terraform
 - terragrunt
 - kubectl
-- aws profile configured
+- aws profile and account configured
 
 1. Edit the root level `terragrunt.hcl`, change the region, tld, and, email as required.
 2. Ensure you are in the root level of this project, and run `make all`
