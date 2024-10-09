@@ -27,6 +27,8 @@ Prerequesites
 
 This will begin the deployment process.
 
+Each component is deployed in order by this command, you can also choose to deploy them in the order described in the `Makefile` with `make <component name>`. 
+
 ## Caveats
 There were a few compromises made in this project since it's just a demo 
 - The state for the bootstrap component is stored locally
