@@ -34,8 +34,13 @@ argocd:
 	terragrunt init --terragrunt-working-dir live/environments/$(TARGET_ENV)/argocd
 	terragrunt apply -auto-approve -terragrunt-working-dir live/environments/$(TARGET_ENV)/argocd
 
+.PHONY: guestbook
+guestbook:
+	terragrunt init --terragrunt-working-dir live/environments/$(TARGET_ENV)/guestbook
+	terragrunt apply -auto-approve -terragrunt-working-dir live/environments/$(TARGET_ENV)/guestbook
+
 .PHONY: all
-all: init vpc eks argocd-init ingress argocd
+all: init vpc eks argocd-init ingress argocd guestbook
 
 BUCKET=$(shell aws s3api list-buckets --query "Buckets[?starts_with(Name, 'terraform-state-bucket-')].Name" --output text)
 
